@@ -12,11 +12,22 @@
     },
     {
       "title": "Follow one job",
-      "text": "A user submits a report job. The queue holds it until a worker is available. The worker creates the report and saves the result.\n\nIf that attempt fails, the job returns to the queue while attempts remain. When none remain, its status becomes failed."
+      "text": "A user submits a report job. The queue holds it until a worker is available. The worker creates the report and saves the result.\n\nIf that attempt fails, the job returns to the queue while attempts remain. When none remain, its status becomes failed.",
+      "code": "job: report-42\n  status: queued\n  attempts: 0"
     },
     {
       "title": "What this diagram does not establish",
       "text": "This example does not specify retry limits, delays, crash recovery, or protection against duplicate execution. It does not show how users retrieve a saved result. Those behaviors need evidence from a real implementation."
+    },
+    {
+      "title": "Source for this example",
+      "text": "This is an illustrative sequence, not a recorded run. The repository contains the example files.",
+      "links": [
+        {
+          "label": "Clearview examples",
+          "url": "https://github.com/emilloc/clearview/tree/main/examples"
+        }
+      ]
     }
   ]
 }

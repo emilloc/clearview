@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+from urllib.parse import urlsplit
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent
@@ -25,6 +26,9 @@ img { display: block; width: 100%; height: auto; background: white; }
 details { border-top: 1px solid #8886; padding: 14px 0; }
 summary { cursor: pointer; font-weight: 600; overflow-wrap: anywhere; }
 details p { margin: 16px 0 8px; }
+a { color: #2767bb; overflow-wrap: anywhere; }
+pre { overflow-x: auto; padding: 12px; border: 1px solid #8886; }
+code { font: 13px/1.5 monospace; }
 .sheet { color-scheme: light; background: #f7f8fa; color: #26313f;
   max-width: 1440px; font: 14px/1.4 'Arial Narrow', Arial, sans-serif; }
 .sheet * { box-sizing: border-box; }
@@ -106,7 +110,11 @@ def render_image(diagram, base, span=None):
         # Estimate from the SVG base font at 1440px; later rules can be unused tooltip styles.
         scale = min((1280 * span / 12 - 32) / width, 300 / height)
         if font * scale < 12:
-            raise ValueError("Sheet diagram labels would be too small. Redraw a short overview, use a wider span, or put the full flow in detail; do not shrink it.")
+            wider = next((candidate for candidate in (4, 6, 8, 12)
+                          if candidate > span and font * min((1280 * candidate / 12 - 32) / width, 300 / height) >= 12), None)
+            advice = (f"Try span {wider}." if wider else
+                      "A wider span will not suffice; draw a shorter overview or move detail into sections.")
+            raise ValueError(f"Sheet diagram labels too small: estimated {font * scale:.1f}px at span {span}; minimum 12px. {advice}")
     encoded = base64.b64encode(raw).decode("ascii")
     return f'<figure><img src="data:{mime};base64,{encoded}" alt="{text(diagram["alt"])}"></figure>'
 
@@ -182,9 +190,27 @@ def render_detail(data, base):
         short_text(data['summary'], 30, 'Sheet summary')
     sections = []
     for section in data["sections"]:
-        fields(section, ("title", "text"))
-        sections.append(f'<details name="detail"><summary>{text(section["title"])}</summary>'
-                        f'<p>{text(section["text"])}</p></details>')
+        fields(section, ("title",), ("text", "code", "links"))
+        if not set(section) & {"text", "code", "links"}:
+            raise ValueError("Each section needs text, code, or links")
+        content = f'<p>{text(section["text"])}</p>' if "text" in section else ""
+        if "code" in section:
+            content += f'<pre><code>{text(section["code"])}</code></pre>'
+        if "links" in section:
+            if not isinstance(section["links"], list) or not section["links"]:
+                raise ValueError("links must be a non-empty list")
+            links = []
+            for link in section["links"]:
+                fields(link, ("label", "url"))
+                href = text(link["url"])
+                url = urlsplit(link["url"])
+                if (url.scheme not in ("http", "https") or not url.hostname
+                        or any(char.isspace() or ord(char) < 32 for char in link["url"])
+                        or "\\" in link["url"]):
+                    raise ValueError("Link URL must be an absolute http:// or https:// address without whitespace")
+                links.append(f'<li><a href="{href}">{text(link["label"])}</a></li>')
+            content += '<ul>' + ''.join(links) + '</ul>'
+        sections.append(f'<details><summary>{text(section["title"])}</summary>{content}</details>')
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

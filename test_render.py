@@ -8,6 +8,26 @@ from render import render, render_detail
 
 
 class SmokeTest(unittest.TestCase):
+    def test_links_and_verbatim_text(self):
+        data = {'title': 'Example', 'summary': 'Short', 'sections': [
+            {'title': 'Evidence', 'code': '\n  <tag>\n\tvalue & end  ',
+             'links': [{'label': '<Source>', 'url': 'https://example.com/?a=1&b="two"'}]}]}
+        result = render_detail(data, Path('.'))
+        self.assertIn('<code>\n  &lt;tag&gt;\n\tvalue &amp; end  </code>', result)
+        self.assertIn('href="https://example.com/?a=1&amp;b=&quot;two&quot;"', result)
+        self.assertIn('&lt;Source&gt;</a>', result)
+        self.assertNotIn('name="detail"', result)
+        for url in ('javascript:alert(1)', 'data:text/html,hi', '//example.com',
+                    'file:///tmp/test', 'https://', 'https://exam\nple.com', 'https:\\example.com'):
+            data['sections'][0]['links'][0]['url'] = url
+            with self.subTest(url=url), self.assertRaises(ValueError):
+                render_detail(data, Path('.'))
+        for section in ({'title': 'Empty'}, {'title': 'Empty', 'links': []},
+                        {'title': 'Bad', 'code': 123}):
+            data['sections'] = [section]
+            with self.subTest(section=section), self.assertRaises(ValueError):
+                render_detail(data, Path('.'))
+
     def test_sheet_rejects_thumbnail_and_prose_cells(self):
         with tempfile.TemporaryDirectory() as folder:
             base = Path(folder)
@@ -15,8 +35,13 @@ class SmokeTest(unittest.TestCase):
             image.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 2000"><style>text {font-size:16px}</style></svg>')
             data = {'title':'Example','summary':'Short','sections':[], 'panels':[
                 {'title':'Flow','diagram':{'path':'flow.svg','alt':'Long flow'}}]}
-            with self.assertRaisesRegex(ValueError, 'too small'):
+            with self.assertRaisesRegex(ValueError, r'estimated 2.4px at span 6; minimum 12px.*wider span will not suffice'):
                 render_detail(data, base)
+            image.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200"><style>text {font-size:16px}</style></svg>')
+            with self.assertRaisesRegex(ValueError, r'estimated 9.7px at span 6; minimum 12px. Try span 8'):
+                render_detail(data, base)
+            data['panels'][0]['span'] = 8
+            self.assertIn('data:image/svg+xml', render_detail(data, base))
             image.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"><style>text {font-size:16px}</style></svg>')
             self.assertIn('data:image/svg+xml', render_detail(data, base))
             data['panels'] = [{'title':'Table','table':{'headers':['Meaning'], 'rows':[['long ' * 20]]}}]

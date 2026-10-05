@@ -1,7 +1,7 @@
 // Run from this folder: node test_layout.mjs
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {copyFileSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
@@ -36,7 +36,20 @@ try {
     if (width <= 1100) assert.ok(Math.abs(sizes.wide - sizes.grid) < 1, `Wide panel shrank at ${width}px`);
     assert.equal(sizes.overflow, false, `Horizontal overflow at ${width}px`);
   }
-  console.log('PASS: six responsive widths without horizontal overflow.');
+  const detail = JSON.parse(readFileSync(path.join(root, 'examples/detail.json'), 'utf8'));
+  detail.sections[1].code = '\n  <tag>\n\t' + 'x'.repeat(200) + '  ';
+  writeFileSync(path.join(temp, 'detail.json'), JSON.stringify(detail));
+  execFileSync('python3', [path.join(root, 'render.py'), path.join(temp, 'detail.json'), path.join(temp, 'detail.html')]);
+  await page.goto(pathToFileURL(path.join(temp, 'detail.html')).href);
+  await page.locator('details:nth-of-type(1) summary').click();
+  await page.locator('details:nth-of-type(2) summary').click();
+  await page.locator('details:last-of-type summary').click();
+  assert.equal(await page.$$eval('details[open]', items => items.length), 3);
+  assert.equal(await page.$eval('pre code', element => element.textContent), detail.sections[1].code);
+  assert.equal(await page.$eval('a', element => element.href), detail.sections[3].links[0].url);
+  assert.equal(await page.$eval('a', element => element.getBoundingClientRect().height > 0), true);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+  console.log('PASS: six responsive widths, independent sections, exact excerpts, and visible links.');
 } finally {
   if (browser) await browser.close();
   rmSync(temp, {recursive:true, force:true});

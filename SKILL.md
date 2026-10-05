@@ -2,7 +2,7 @@
 name: clearview
 description: Turn existing agent work into a rendered diagram or a web page with sections readers can click to read more. Use when a user requests a visual explanation or a shareable overview.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Clearview
@@ -32,7 +32,8 @@ as a thumbnail. Use short table entries, not sentences stacked in narrow columns
 Show connections and branches with a diagram; numbered steps are for actions or
 a worked example. Do not replace a useful diagram with prose to bypass a layout
 error. Report the error if regrouping or widening the diagram cannot resolve it.
-Place relevant evidence references in detail text. Do not include secrets in shared output.
+Link relevant sources in detail sections. For changing information, state when it was checked;
+a page generation date does not establish freshness. Do not include secrets in shared output.
 
 Write inputs and outputs in the task's working folder, not inside the installed skill.
 Render with Python 3.10+ (replace CLEARVIEW with this folder's path):
@@ -43,7 +44,10 @@ python3 "CLEARVIEW/render.py" explanation.json explanation.html
 ```
 
 Web page JSON: `title` and `summary` are strings; `sections` is a list of objects with
-`title` and `text` strings. Optional `diagram` contains `path` and `alt` strings.
+`title` and at least one of: `text` (plain explanation), `code` (verbatim text),
+or `links` (a non-empty list of `{ "label": "Source", "url": "https://example.com" }`).
+These fields can be combined; links must use HTTP or HTTPS. Keep excerpts short.
+Sections open independently. Optional `diagram` contains `path` and `alt` strings.
 Paths are relative to the JSON file, inside its folder. Text is plain text, not HTML
 or Markdown. Blank lines separate paragraphs. See `examples/detail.json` only if needed.
 If including a diagram, render it to SVG or PNG before rendering the web page.

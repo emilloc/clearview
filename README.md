@@ -47,7 +47,7 @@ these commands turn the agent's files into the requested diagram or web page.
 
 - **Diagram:** [SVG](examples/diagram.svg) or [PNG](examples/diagram.png), for relationships and behavior at a glance.
 - **Reference sheet:** [HTML](examples/sheet.html), with small diagrams, comparisons, and examples on one page.
-- **Web page:** [HTML](examples/detail.html), with a short overview and sections you can click to read more.
+- **Web page:** [HTML](examples/detail.html), with sections you can keep open together, clickable sources, and exact code or log excerpts.
 
 ![Example: a job moves through a queue, succeeds, or retries until attempts run out.](examples/diagram.png)
 
@@ -60,4 +60,4 @@ python3 -m unittest discover -s . -p 'test_*.py'
 node test_layout.mjs
 ```
 
-checks for cover rendering, input handling, and responsive layout.
+checks cover rendering, input handling, and responsive layout.
