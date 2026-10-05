@@ -1,0 +1,22 @@
+{
+  "title": "How a background job reaches a result",
+  "summary": "Illustrative example, not an inspected codebase. A queue holds submitted jobs until a worker can run them. Each job ends with a saved result or a failed status.",
+  "diagram": {
+    "path": "diagram.svg",
+    "alt": "Submit job → queue → worker. Success saves the result. Failure returns to the queue if attempts remain; otherwise the job is marked failed."
+  },
+  "sections": [
+    {
+      "title": "Why the queue exists",
+      "text": "The queue separates submission from execution. A submitted job can wait while workers are busy. Submission alone does not mean the work succeeded."
+    },
+    {
+      "title": "Follow one job",
+      "text": "A user submits a report job. The queue holds it until a worker is available. The worker creates the report and saves the result.\n\nIf that attempt fails, the job returns to the queue while attempts remain. When none remain, its status becomes failed."
+    },
+    {
+      "title": "What this diagram does not establish",
+      "text": "This example does not specify retry limits, delays, crash recovery, or protection against duplicate execution. It does not show how users retrieve a saved result. Those behaviors need evidence from a real implementation."
+    }
+  ]
+}

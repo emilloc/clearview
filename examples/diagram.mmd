@@ -1,0 +1,10 @@
+flowchart LR
+  accTitle: Job processing — illustrative example
+  accDescr: A submitted job waits in a queue. A worker runs it. Successful jobs produce a saved result. Failed jobs retry while attempts remain, otherwise their status becomes failed.
+  A[Submit job] --> B[Queue]
+  B --> C[Worker runs job]
+  C --> D{Succeeded?}
+  D -->|Yes| E[Save result]
+  D -->|No| F{Attempts remain?}
+  F -->|Yes: retry| B
+  F -->|No| G[Mark failed]

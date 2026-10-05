@@ -1,0 +1,90 @@
+{
+  "title": "Background jobs: queue, run, finish",
+  "summary": "Illustrative example · Accepting a job does not mean it succeeded. A worker runs it; failed attempts retry while attempts remain.",
+  "panels": [
+    {
+      "title": "Who handles the job",
+      "span": 4,
+      "diagram": {
+        "path": "sheet.svg",
+        "alt": "A user submits a job. The queue holds it. A worker takes it and runs it. Outcomes are shown in panel C."
+      }
+    },
+    {
+      "title": "Read one queued job",
+      "span": 4,
+      "anatomy": [
+        {
+          "value": "report-42",
+          "label": "Job identifier"
+        },
+        {
+          "value": "queued",
+          "label": "Waiting for a worker"
+        },
+        {
+          "value": "2 attempts left",
+          "label": "This example allows two more tries"
+        }
+      ]
+    },
+    {
+      "title": "When an attempt ends",
+      "span": 4,
+      "table": {
+        "headers": [
+          "Result",
+          "Next action"
+        ],
+        "rows": [
+          [
+            "Success",
+            "Save the result."
+          ],
+          [
+            "Failure; attempts remain",
+            "Return to the queue."
+          ],
+          [
+            "Failure; none remain",
+            "Mark the job failed."
+          ]
+        ]
+      }
+    },
+    {
+      "title": "One report, two attempts",
+      "span": 6,
+      "steps": [
+        "The report job waits in the queue.",
+        "First attempt fails → one attempt remains → return to the queue.",
+        "Second attempt succeeds → save the report."
+      ]
+    },
+    {
+      "title": "Not specified in this example",
+      "span": 6,
+      "table": {
+        "headers": [
+          "Question",
+          "Why it matters"
+        ],
+        "rows": [
+          [
+            "Retry delay?",
+            "How long a failure holds up the job."
+          ],
+          [
+            "Worker crashes?",
+            "Whether the job resumes."
+          ],
+          [
+            "Duplicate execution?",
+            "Whether the same action happens twice."
+          ]
+        ]
+      }
+    }
+  ],
+  "sections": []
+}

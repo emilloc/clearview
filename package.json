@@ -1,0 +1,12 @@
+{
+  "name": "clearview",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local diagram rendering for human-readable agent work",
+  "scripts": {
+    "setup": "node node_modules/puppeteer/install.mjs"
+  },
+  "dependencies": {
+    "@mermaid-js/mermaid-cli": "12.0.0"
+  }
+}

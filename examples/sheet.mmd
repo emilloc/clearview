@@ -1,0 +1,5 @@
+flowchart TB
+  accTitle: Who handles a background job
+  accDescr: A user submits a job. The queue holds it. A worker takes the job and runs it. The adjacent outcome table explains success and retry behavior.
+  A[User] -->|submits job| B[Queue]
+  B -->|worker takes job| C[Worker]
