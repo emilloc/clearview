@@ -17,7 +17,11 @@ Honor an explicitly requested format. Otherwise, choose the lightest view that e
 - **Web page with detail:** when requested. Use sections readers can click to read more, optionally below a reference sheet. A diagram is optional.
 - A simple factual answer stays text; do not manufacture an artifact.
 
-Use familiar words, short sentences, and consistent names. Explain necessary jargon.
+Lead with the useful fact. Name the actor, action, and result. Use familiar words,
+short sentences, and the same name for the same thing. Explain necessary jargon.
+Remove preambles, repeated conclusions, promotional claims, invented labels, and
+contrasts that add no information. Preserve necessary explanations, qualifications,
+and exact quotations.
 Show cause and effect, not a file inventory. Label arrows with their meaning.
 Preserve important branches, conditions, uncertainty, and failures. Mark illustrative
 examples and distinguish observed behavior from assumptions or plans.
